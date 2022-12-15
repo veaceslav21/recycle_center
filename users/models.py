@@ -10,7 +10,7 @@ class User(db.Model):
     username = db.Column(db.String(64), index=True, unique=True, nullable=False)
     email = db.Column(db.String(80), index=True, unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=False)
-    created = db.Column(db.DateTimem, default=datetime.datetime.now(), nullable=True)
+    created = db.Column(db.DateTime, default=datetime.datetime.now(), nullable=True)
 
     def __init__(self, *args, **kwargs):
         self.username = kwargs.get('username')
@@ -24,4 +24,4 @@ class User(db.Model):
         self.password = generate_password_hash(self.password).decode('utf8')
 
     def check_password(self, password):
-        check_password_hash(self.password, password)
+        return check_password_hash(self.password, password)
