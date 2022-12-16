@@ -2,7 +2,8 @@ from db import db
 import jwt
 import datetime
 from .models import User
-from .validators import UserRegisterSchema, UserLoginSchema
+from .validators import UserRegisterSchema, UserLoginSchema, PasswordResetSchema
+from flask_bcrypt import generate_password_hash
 from os import environ
 
 
@@ -37,14 +38,30 @@ def login_user(input_data):
         return {"message": "Input data is not valid"}, 400
 
     user = User.query.filter_by(email=input_data['email']).first()
-    if not user:
-        return {"message": "Wrong email/password or user don't exists"}
-
-    if user.check_password(input_data['password']):
-
+    if user and user.check_password(input_data['password']):
         token = jwt.encode(
-            {'public_id': user.id, 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)},
+            {'user_id': user.id, 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)},
             environ.get("SECRET_KEY")
         )
         return {"token": token.decode("UTF-8")}
+
+    return {"message": "Wrong email/password or user don't exists"}
+
+
+def reset_password(input_data, token):
+    validation_schema = PasswordResetSchema()
+    error = validation_schema.validate(input_data)
+    if error:
+        return {"message": "Wrong input data"}
+
+    token_info = jwt.decode(token, environ.get("SECRET_KEY"))
+    user = User.query.filter_by(id=token_info['user_id']).first()
+
+    if not user:
+        return {"message": "No user found"}, 400
+
+    user.password = generate_password_hash(input_data['password']).decode('utf8')
+    db.session.commit()
+
+    return {"message": "Password has been changed successfully"}, 200
 

@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_restful import Api
 from db import db
-from users.views import LoginUser, SignUpUser
+from users.views import LoginUser, SignUpUser, ResetPassword
 import environ
 
 
@@ -23,6 +23,7 @@ def create_tables():
 
 api.add_resource(SignUpUser, "/user/register")
 api.add_resource(LoginUser, "/user/login")
+api.add_resource(ResetPassword, "/user/reset_password")
 
 
 if __name__ == "__main__":
