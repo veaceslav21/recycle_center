@@ -1,6 +1,7 @@
-from flask import request, jsonify
+from flask import request
 from flask_restful import Resource
 from users.auth import create_user, login_user, reset_password
+from flask_httpauth import HTTPAuth
 
 
 class SignUpUser(Resource):

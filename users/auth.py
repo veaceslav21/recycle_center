@@ -9,7 +9,7 @@ from os import environ
 
 def create_user(input_data):
     validation_schema = UserRegisterSchema()
-    error = validation_schema.validate(input_data)  # This return dict() of errors if input data didn't pass validation
+    error = validation_schema.validate(input_data)  # return dict() of errors if input data didn't pass validation
     if error:
         return {"message": "Input data is not valid"}, 400
 

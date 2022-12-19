@@ -10,6 +10,12 @@ class User(db.Model):
     username = db.Column(db.String(64), index=True, unique=True, nullable=False)
     email = db.Column(db.String(80), index=True, unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=False)
+    first_name = db.Column(db.String(100), nullable=False)
+    last_name = db.Column(db.String(100), nullable=False)
+    birthday = db.Column(db.Datetime)
+    rating = db.Column(db.Float)
+    is_staff = db.Column(db.Boolean)
+    is_admin = db.Column(db.Boolean)
     created = db.Column(db.DateTime, default=datetime.datetime.now(), nullable=True)
 
     def __init__(self, *args, **kwargs):
