@@ -1,31 +1,27 @@
 from flask import request
-from flask_restful import Resource
 from users.auth import create_user, login_user, reset_password
-from flask_httpauth import HTTPAuth
+from flask import Blueprint
+
+user_bp = Blueprint("user_blueprint", __name__)
 
 
-class SignUpUser(Resource):
+@user_bp.route("/register", methods=["POST"])
+def register_user():
+    data = request.get_json()
+    return create_user(data)
 
-    @classmethod
-    def post(cls):
+
+@user_bp.route("/login", methods=["POST"])
+def login_user():
+    data = request.get_json()
+    return login_user(data)
+
+
+@user_bp.route("/password_rest", methods=["POST"])
+def password_rest():
+    if request.headers['Authorization']:
+        token = request.headers['Authorization'].lstrip("JWT ")
         data = request.get_json()
-        return create_user(data)
+        return reset_password(data, token)
 
-
-class LoginUser(Resource):
-
-    @classmethod
-    def post(cls):
-        data = request.get_json()
-        return login_user(data)
-
-
-class ResetPassword(Resource):
-    @staticmethod
-    def post():
-        if request.headers['Authorization']:
-            token = request.headers['Authorization'].lstrip("JWT ")
-            data = request.get_json()
-            return reset_password(data, token)
-
-        return {"message": "Authorization required, please login."}
+    return {"message": "Authorization required, please login."}

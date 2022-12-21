@@ -5,13 +5,15 @@ from .models import User
 from .validators import UserRegisterSchema, UserLoginSchema, PasswordResetSchema
 from flask_bcrypt import generate_password_hash
 from os import environ
-
+import datetime
 
 def create_user(input_data):
     validation_schema = UserRegisterSchema()
+    date = list(map(int, input_data.get("birthday", None).split("-")))
+    input_data['birthday'] = datetime.datetime(*date)
     error = validation_schema.validate(input_data)  # return dict() of errors if input data didn't pass validation
     if error:
-        return {"message": "Input data is not valid"}, 400
+        return error, 400
 
     check_username_exists = User.query.filter_by(username=input_data["username"]).first()
     if check_username_exists:
