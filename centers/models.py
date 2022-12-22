@@ -5,7 +5,7 @@ class Center(db.Model):
     __tablename__ = "centers"
 
     id = db.Column(db.Integer, primary_key=True)
-    address = db.Column(db.String(100), nullable=False)
+    address = db.Column(db.String(100), unique=True, nullable=False)
     # types of materials
     glass = db.Column(db.Boolean)
     plastic = db.Column(db.Boolean)
@@ -14,7 +14,11 @@ class Center(db.Model):
     def __repr__(self):
         return f"Center: {self.address}"
 
-    @staticmethod
-    def find_by_address(address):
-        center = Center.query.filter_by(address).first()
-        return center if center else None
+    def save_to_db(self):
+        db.session.add(self)
+        db.session.commit()
+
+    # @staticmethod
+    # def find_by_address(address):
+    #     center = Center.query.filter_by(address).first()
+    #     return center if center else None

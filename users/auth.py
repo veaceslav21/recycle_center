@@ -1,19 +1,21 @@
 from db import db
 import jwt
-import datetime
+import datetime as dt
 from .models import User
 from .validators import UserRegisterSchema, UserLoginSchema, PasswordResetSchema
 from flask_bcrypt import generate_password_hash
 from os import environ
-import datetime
+
 
 def create_user(input_data):
     validation_schema = UserRegisterSchema()
-    date = list(map(int, input_data.get("birthday", None).split("-")))
-    input_data['birthday'] = datetime.datetime(*date)
-    error = validation_schema.validate(input_data)  # return dict() of errors if input data didn't pass validation
-    if error:
-        return error, 400
+    try:
+        dt.datetime.strptime(input_data['birthday'], "%Y-%m-%d")
+        input_data['birthday'] = str(dt.datetime.strptime(input_data['birthday'], "%Y-%m-%d"))
+    except:
+        return {"custom_error": "Wrong datetime format"}
+
+    input_data = validation_schema.load(input_data)  # return dict() with data if input data  pass validation
 
     check_username_exists = User.query.filter_by(username=input_data["username"]).first()
     if check_username_exists:
@@ -28,8 +30,8 @@ def create_user(input_data):
     db.session.add(new_user)
     db.session.commit()
     del input_data["password"]
-
-    return {"message": "You have registered successfully"}, 201
+    return {"message": "You have registered successfully",
+            "new_user": validation_schema.dump(new_user)}, 201
 
 
 def login_user(input_data):
@@ -42,7 +44,7 @@ def login_user(input_data):
     user = User.query.filter_by(email=input_data['email']).first()
     if user and user.check_password(input_data['password']):
         token = jwt.encode(
-            {'user_id': user.id, 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)},
+            {'user_id': user.id, 'exp': dt.datetime.utcnow() + dt.timedelta(minutes=30)},
             environ.get("SECRET_KEY")
         )
         return {"token": token.decode("UTF-8")}
@@ -66,4 +68,3 @@ def reset_password(input_data, token):
     db.session.commit()
 
     return {"message": "Password has been changed successfully"}, 200
-

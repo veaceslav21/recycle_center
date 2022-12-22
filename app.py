@@ -2,7 +2,6 @@ from flask import Flask
 from db import db
 import environ
 
-
 env = environ.Env()
 # reading .env file
 environ.Env.read_env()
@@ -24,14 +23,12 @@ def create_app():
     return app
 
 
-
 if __name__ == "__main__":
     app = create_app()
 
     @app.before_first_request
     def create_tables():
         db.create_all()
-
 
     app.run(port=5000, debug=True)
 

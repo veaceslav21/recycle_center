@@ -12,12 +12,12 @@ def register_user():
 
 
 @user_bp.route("/login", methods=["POST"])
-def login_user():
+def login():
     data = request.get_json()
     return login_user(data)
 
 
-@user_bp.route("/password_rest", methods=["POST"])
+@user_bp.route("/password_reset", methods=["POST"])
 def password_rest():
     if request.headers['Authorization']:
         token = request.headers['Authorization'].lstrip("JWT ")

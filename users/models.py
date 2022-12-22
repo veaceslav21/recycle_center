@@ -14,19 +14,19 @@ class User(db.Model):
     last_name = db.Column(db.String(100), nullable=False)
     birthday = db.Column(db.DateTime)
     rating = db.Column(db.Float, default=0.0, nullable=True)
-    is_staff = db.Column(db.Boolean)
-    is_admin = db.Column(db.Boolean)
+    is_staff = db.Column(db.Boolean, default=False)
+    is_admin = db.Column(db.Boolean, default=False)
     created = db.Column(db.DateTime, default=datetime.datetime.now(), nullable=True)
 
-    def __init__(self, *args, **kwargs):
-        self.username = kwargs.get('username')
-        self.email = kwargs.get('email')
-        self.password = kwargs.get('password')
-        self.first_name = kwargs.get('first_name')
-        self.last_name = kwargs.get('last_name')
-        self.birthday = kwargs.get('birthday')
-        self.is_admin = kwargs.get('is_admin', False)
-        self.is_staff = kwargs.get('is_staff', False)
+    # def __init__(self, *args, **kwargs):
+    #     self.username = kwargs.get('username')
+    #     self.email = kwargs.get('email')
+    #     self.password = kwargs.get('password')
+    #     self.first_name = kwargs.get('first_name')
+    #     self.last_name = kwargs.get('last_name')
+    #     self.birthday = kwargs.get('birthday')
+    #     self.is_admin = kwargs.get('is_admin', False)
+    #     self.is_staff = kwargs.get('is_staff', False)
 
     def __repr__(self):
         return f"<User: {self.username}>"
