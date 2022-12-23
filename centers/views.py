@@ -45,8 +45,8 @@ def center_update(id):
         return {"message": "Center does not exists"}
     validated_data = update_schema.load(data)
 
-    for item in validated_data:
-        setattr(center, item, validated_data[item])
+    for kye, value in validated_data.items():
+        setattr(center, kye, value)
     center.save_to_db()
     return center_schema.dump(center)
 
