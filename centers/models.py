@@ -18,7 +18,6 @@ class Center(db.Model):
         db.session.add(self)
         db.session.commit()
 
-    # @staticmethod
-    # def find_by_address(address):
-    #     center = Center.query.filter_by(address).first()
-    #     return center if center else None
+    def delete_from_db(self):
+        db.session.delete(self)
+        db.session.commit()

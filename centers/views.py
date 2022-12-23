@@ -1,18 +1,25 @@
 from flask import request
 from .models import Center
-from .validators import CenterSchema
+from .validators import CenterSchema, UpdateCenterSchema
 from flask import Blueprint
 
 center_bp = Blueprint("center_blueprint", __name__)
 
 center_schema = CenterSchema()
 list_center_schema = CenterSchema(many=True)
+update_schema = UpdateCenterSchema()
 
 
 @center_bp.route("/list", methods=["GET"])
 def center_list():
     centers = Center.query.all()
     return list_center_schema.dump(centers), 200
+
+
+@center_bp.route("/<int:id>", methods=["GET"])
+def get_center(id):
+    center = Center.query.filter_by(id=id).first()
+    return center_schema.dump(center), 200
 
 
 @center_bp.route("create/", methods=["POST"])
@@ -30,9 +37,24 @@ def center_create():
     return center_schema.dump(new_center), 201
 
 
-# @center_bp.route("update/", methods=["PUT"])
-# def center_update():
-#     data = request.get_json()
-#
+@center_bp.route("update/<int:id>", methods=["PUT"])
+def center_update(id):
+    data = request.get_json()
+    center = Center.query.filter_by(id=id).first()
+    if not center:
+        return {"message": "Center does not exists"}
+    validated_data = update_schema.load(data)
+
+    for item in validated_data:
+        setattr(center, item, validated_data[item])
+    center.save_to_db()
+    return center_schema.dump(center)
 
 
+@center_bp.route("delete/<int:id>", methods=["DELETE"])
+def center_delete(id):
+    center = Center.query.filter_by(id=id).first()
+    if not center:
+        return {"message": "Center does not exists"}
+    center.delete_from_db()
+    return {"message": f"<{center}> was deleted"}, 404
