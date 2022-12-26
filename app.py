@@ -1,6 +1,7 @@
 from flask import Flask
 from db import db
 import environ
+from recycling_bids.models import Application
 
 env = environ.Env()
 # reading .env file
@@ -10,7 +11,7 @@ environ.Env.read_env()
 def create_app():
     app = Flask(__name__)
     app.secret_key = env("SECRET_KEY")
-    app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///recycle.db"
+    app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///recycle.db"  # env("DATABASE_URL")
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     from db import db
     db.init_app(app)

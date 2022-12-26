@@ -1,6 +1,7 @@
 from db import db
 from flask_bcrypt import generate_password_hash, check_password_hash
 import datetime
+from recycling_bids.models import Application
 
 
 class User(db.Model):
@@ -16,7 +17,8 @@ class User(db.Model):
     rating = db.Column(db.Float, default=0.0, nullable=True)
     is_staff = db.Column(db.Boolean, default=False)
     is_admin = db.Column(db.Boolean, default=False)
-    created = db.Column(db.DateTime, default=datetime.datetime.now(), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.datetime.now())
+    recycling_bids = db.relationship("Application", backref="user", lazy=True)
 
     # def __init__(self, *args, **kwargs):
     #     self.username = kwargs.get('username')
