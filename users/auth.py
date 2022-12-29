@@ -13,7 +13,7 @@ def create_user(input_data):
         dt.datetime.strptime(input_data['birthday'], "%Y-%m-%d")
         input_data['birthday'] = str(dt.datetime.strptime(input_data['birthday'], "%Y-%m-%d"))
     except:
-        return {"custom_error": "Wrong datetime format"}
+        return {"custom_error": "Wrong datetime format"}, 400
 
     input_data = validation_schema.load(input_data)  # return dict() with data if input data  pass validation
 
@@ -64,7 +64,7 @@ def reset_password(input_data, token):
     if not user:
         return {"message": "No user found"}, 400
 
-    user.password = generate_password_hash(input_data['password']).decode('utf8')
+    user.password = generate_password_hash(input_data['new_password']).decode('utf8')
     db.session.commit()
 
     return {"message": "Password has been changed successfully"}, 200

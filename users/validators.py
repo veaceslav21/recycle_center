@@ -11,6 +11,8 @@ class UserRegisterSchema(Schema):
     last_name = fields.Str(required=True)
     birthday = fields.DateTime(required=True)
     rating = fields.Float(dump_only=True)
+    points = fields.Int(dump_only=True)
+    request_count = fields.Int(dump_only=True)
     is_staff = fields.Boolean()
     is_admin = fields.Boolean()
 
@@ -21,4 +23,4 @@ class UserLoginSchema(Schema):
 
 
 class PasswordResetSchema(Schema):
-    password = fields.Str(required=True, validate=validate.Length(min=6))
+    new_password = fields.Str(required=True, validate=validate.Length(min=6))
