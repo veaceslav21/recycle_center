@@ -3,7 +3,7 @@ from db import db
 
 
 def user_remuneration(user, material_type, capacity):
-    if material_type == "plastic" or "glass":
+    if material_type in ("plastic", "glass"):
         if capacity <= 5:
             user.points += 5
             user.request_count += 1
