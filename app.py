@@ -18,9 +18,11 @@ def create_app():
     from users.views import user_bp
     from centers.views import center_bp
     from recycling_bids.views import recycle_bp
+    from statistics.views import statistic_bp
     app.register_blueprint(user_bp, url_prefix='/user')
     app.register_blueprint(center_bp, url_prefix='/center')
     app.register_blueprint(recycle_bp, url_prefix='/application')
+    app.register_blueprint(statistic_bp, url_prefix='/statistics')
 
     return app
 

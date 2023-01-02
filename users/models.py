@@ -2,8 +2,6 @@ from db import db
 from flask_bcrypt import generate_password_hash, check_password_hash
 import datetime
 from recycling_bids.models import Application
-from sqlalchemy import func
-func.sum()
 
 
 class User(db.Model):
@@ -30,8 +28,3 @@ class User(db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password, password)
-
-    # def change_rating(self):
-    #     self.rating = self.points / self.request_count
-
-
