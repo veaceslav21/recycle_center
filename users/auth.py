@@ -5,6 +5,7 @@ from .models import User
 from .validators import UserRegisterSchema, UserLoginSchema, PasswordResetSchema
 from flask_bcrypt import generate_password_hash
 from os import environ
+from flask import request, jsonify
 
 
 def create_user(input_data):
@@ -68,3 +69,13 @@ def reset_password(input_data, token):
     db.session.commit()
 
     return {"message": "Password has been changed successfully"}, 200
+
+
+def get_current_user():
+    if request.headers['Authorization']:
+        token = request.headers['Authorization'].lstrip("JWT ")
+        token_info = jwt.decode(token, environ.get("SECRET_KEY"))
+        user = User.query.filter_by(id=token_info['user_id']).first()
+        return user
+
+    return jsonify({"message": "Authorization required, please login."})
