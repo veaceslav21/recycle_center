@@ -4,6 +4,8 @@ from flask import Blueprint
 from .models import User
 from .validators import UserSchema
 from flask_jwt_extended import get_jwt_identity, jwt_required
+import basehash
+from flask import jsonify
 
 
 user_bp = Blueprint("user_blueprint", __name__)
@@ -45,3 +47,13 @@ def get_user_info():
     if not user:
         return {"message": "User does not exists"}, 404
     return user_schema.dump(user, many=False), 200
+
+
+@user_bp.route("/referral", methods=["GET"])
+@jwt_required()
+def get_referral_code():
+    current_user = get_jwt_identity()
+    user = User.query.get(current_user)
+    hash_fn = basehash.base36()
+    referral_code = hash_fn.hash(user.id)
+    return jsonify({"referral_code": referral_code})

@@ -16,7 +16,6 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     from db import db
     db.init_app(app)
-
     from users.views import user_bp
     from centers.views import center_bp
     from recycling_bids.views import recycle_bp

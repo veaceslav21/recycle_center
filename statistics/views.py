@@ -25,7 +25,7 @@ def general_statistics():
         "glass_kg": glass,
         "num_of_requests": num_of_requests
     }
-    return jsonify(stats)
+    return jsonify(stats), 200
 
 
 @statistic_bp.route("/center/<int:id>")
