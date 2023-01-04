@@ -2,6 +2,7 @@ from flask import request
 from .models import Center
 from .validators import CenterSchema, UpdateCenterSchema
 from flask import Blueprint
+from flask_jwt_extended import jwt_required
 
 center_bp = Blueprint("center_blueprint", __name__)
 
@@ -23,7 +24,8 @@ def get_center(id):
 
 
 @center_bp.route("create/", methods=["POST"])
-def center_create():
+@jwt_required()
+def center_create():  # Should work only for admin
     data = request.get_json()
     address = data['address']
     address = Center.query.filter_by(address=address).first()
@@ -38,7 +40,8 @@ def center_create():
 
 
 @center_bp.route("update/<int:id>", methods=["PUT"])
-def center_update(id):
+@jwt_required()
+def center_update(id):  # Should work only for admin
     data = request.get_json()
     center = Center.query.filter_by(id=id).first()
     if not center:
@@ -52,7 +55,8 @@ def center_update(id):
 
 
 @center_bp.route("delete/<int:id>", methods=["DELETE"])
-def center_delete(id):
+@jwt_required()
+def center_delete(id):  # Should work only for admin
     center = Center.query.filter_by(id=id).first()
     if not center:
         return {"message": "Center does not exists"}

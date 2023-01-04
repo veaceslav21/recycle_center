@@ -1,6 +1,7 @@
 from flask import Flask
 from db import db
 import environ
+from flask_jwt_extended import JWTManager
 
 env = environ.Env()
 # reading .env file
@@ -10,6 +11,7 @@ environ.Env.read_env()
 def create_app():
     app = Flask(__name__)
     app.secret_key = env("SECRET_KEY")
+    jwt = JWTManager(app)
     app.config['SQLALCHEMY_DATABASE_URI'] = env("DATABASE_URL")  # "sqlite:///recycle.db"
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     from db import db

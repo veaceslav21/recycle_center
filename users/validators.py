@@ -1,8 +1,7 @@
 from marshmallow import Schema, fields, validate
-import datetime
 
 
-class UserRegisterSchema(Schema):
+class UserSchema(Schema):
     id = fields.Int()
     username = fields.Str(required=True, validate=validate.Length(min=5))
     email = fields.Email(required=True)
@@ -17,10 +16,6 @@ class UserRegisterSchema(Schema):
     is_admin = fields.Boolean()
 
 
-class UserLoginSchema(Schema):
-    email = fields.Email(required=True)
-    password = fields.Str(required=True, validate=validate.Length(min=6))
-
-
 class PasswordResetSchema(Schema):
+    old_password = fields.Str(required=True, validate=validate.Length(min=6))
     new_password = fields.Str(required=True, validate=validate.Length(min=6))

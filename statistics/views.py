@@ -1,15 +1,17 @@
 from flask import Blueprint
 from centers.models import Center
 from recycling_bids.models import Application
+from users.models import User
 from sqlalchemy import func
 from db import db
 from flask import jsonify
-from users.auth import get_current_user
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 statistic_bp = Blueprint("statistic_bp", __name__)
 
 
 @statistic_bp.route("/general", methods=["GET"])
+@jwt_required()
 def general_statistics():
     """get general statistics of all centers"""
     paper = db.session.query(func.sum(Application.capacity)).filter(Application.material_type == "paper").scalar()
@@ -27,6 +29,7 @@ def general_statistics():
 
 
 @statistic_bp.route("/center/<int:id>")
+@jwt_required()
 def center_statistics(id):
     """get statistics of a center by id"""
     center = Center.query.filter_by(id=id).first()
@@ -51,9 +54,10 @@ def center_statistics(id):
 
 
 @statistic_bp.route("/user")
+@jwt_required()
 def get_user_stats():
     """get statistics of a logged user"""
-    user = get_current_user()
+    user = User.query.get(get_jwt_identity())
 
     paper = db.session.query(func.sum(Application.capacity)).filter(Application.user_id == user.id) \
         .filter(Application.material_type == "paper").scalar()

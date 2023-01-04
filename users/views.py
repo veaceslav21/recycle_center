@@ -1,45 +1,47 @@
 from flask import request
-from users.auth import create_user, login_user, reset_password
+from users.auth import _create_user, _login_user, _reset_password
 from flask import Blueprint
 from .models import User
-from .validators import UserRegisterSchema
+from .validators import UserSchema
+from flask_jwt_extended import get_jwt_identity, jwt_required
 
 
 user_bp = Blueprint("user_blueprint", __name__)
-user_schema = UserRegisterSchema()
+user_schema = UserSchema()
 
 
 @user_bp.route("/register", methods=["POST"])
 def register_user():
     data = request.get_json()
-    return create_user(data)
+    return _create_user(data), 201
 
 
 @user_bp.route("/login", methods=["POST"])
 def login():
     data = request.get_json()
-    return login_user(data)
+    return _login_user(data), 201
 
 
 @user_bp.route("/password_reset", methods=["POST"])
+@jwt_required()
 def password_rest():
-    if request.headers['Authorization']:
-        token = request.headers['Authorization'].lstrip("JWT ")
-        data = request.get_json()
-        return reset_password(data, token)
-
-    return {"message": "Authorization required, please login."}
+    current_user = User.query.get(get_jwt_identity())
+    data = request.get_json()
+    return _reset_password(data, current_user), 201
 
 
 @user_bp.route("/list", methods=["GET"])
-def get_users():
+@jwt_required()
+def get_users():  # Should work only for admin and staff
     users = User.query.all()
-    return user_schema.dump(users, many=True)
+    return user_schema.dump(users, many=True), 200
 
 
-@user_bp.route("/<int:id>", methods=["GET"])
-def get_user_by_id(id):
-    user = User.query.filter_by(id=id).first()
+@user_bp.route("/info", methods=["GET"])
+@jwt_required()
+def get_user_info():
+    current_user = get_jwt_identity()
+    user = User.query.get(current_user)
     if not user:
         return {"message": "User does not exists"}, 404
     return user_schema.dump(user, many=False), 200

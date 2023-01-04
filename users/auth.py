@@ -1,15 +1,14 @@
 from db import db
-import jwt
 import datetime as dt
 from .models import User
-from .validators import UserRegisterSchema, UserLoginSchema, PasswordResetSchema
+from .validators import UserSchema, PasswordResetSchema
 from flask_bcrypt import generate_password_hash
-from os import environ
-from flask import request, jsonify
+from flask import jsonify
+from flask_jwt_extended import create_access_token
 
 
-def create_user(input_data):
-    validation_schema = UserRegisterSchema()
+def _create_user(input_data):
+    validation_schema = UserSchema()
     try:
         dt.datetime.strptime(input_data['birthday'], "%Y-%m-%d")
         input_data['birthday'] = str(dt.datetime.strptime(input_data['birthday'], "%Y-%m-%d"))
@@ -31,51 +30,33 @@ def create_user(input_data):
     db.session.add(new_user)
     db.session.commit()
     del input_data["password"]
+
     return {"message": "You have registered successfully",
             "new_user": validation_schema.dump(new_user)}, 201
 
 
-def login_user(input_data):
-    validation_schema = UserLoginSchema()
-    error = validation_schema.validate(input_data)
+def _login_user(data):
+    login_schema = UserSchema(only=("email", "password"))
+    data = login_schema.load(data)
 
-    if error:
-        return {"message": "Input data is not valid"}, 400
+    user = User.query.filter_by(email=data["email"]).first()
+    if user and user.check_password(data["password"]):
+        access_token = create_access_token(identity=user.id)
+        return {"token": access_token, "user_id": user.id}
 
-    user = User.query.filter_by(email=input_data['email']).first()
-    if user and user.check_password(input_data['password']):
-        token = jwt.encode(
-            {'user_id': user.id, 'exp': dt.datetime.utcnow() + dt.timedelta(minutes=30)},
-            environ.get("SECRET_KEY")
-        )
-        return {"token": token.decode("UTF-8")}
-
-    return {"message": "Wrong email/password or user don't exists"}
+    return jsonify({"msg": "Bad email or password"}), 401
 
 
-def reset_password(input_data, token):
+def _reset_password(data, user):
     validation_schema = PasswordResetSchema()
-    error = validation_schema.validate(input_data)
+    error = validation_schema.validate(data)  # check difference between .validation() and . load()
     if error:
         return {"message": "Wrong input data"}
 
-    token_info = jwt.decode(token, environ.get("SECRET_KEY"))
-    user = User.query.filter_by(id=token_info['user_id']).first()
+    if not user.check_password(data["old_password"]):
+        return jsonify({"message": "Wrong old password, try again."})
 
-    if not user:
-        return {"message": "No user found"}, 400
-
-    user.password = generate_password_hash(input_data['new_password']).decode('utf8')
+    user.password = generate_password_hash(data['new_password']).decode('utf8')
     db.session.commit()
 
-    return {"message": "Password has been changed successfully"}, 200
-
-
-def get_current_user():
-    if request.headers['Authorization']:
-        token = request.headers['Authorization'].lstrip("JWT ")
-        token_info = jwt.decode(token, environ.get("SECRET_KEY"))
-        user = User.query.filter_by(id=token_info['user_id']).first()
-        return user
-
-    return jsonify({"message": "Authorization required, please login."})
+    return jsonify({"message": "Password has been changed successfully"})
