@@ -17,6 +17,8 @@ class User(db.Model):
     request_count = db.Column(db.Integer, default=0, nullable=True)
     is_staff = db.Column(db.Boolean, default=False)
     is_admin = db.Column(db.Boolean, default=False)
+    parent_referral = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
+    referrals = db.relationship("User")
     created_at = db.Column(db.DateTime, default=datetime.datetime.now())
     recycling_bids = db.relationship(Application, backref="user")
 

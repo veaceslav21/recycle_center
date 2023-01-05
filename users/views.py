@@ -49,7 +49,7 @@ def get_user_info():
     return user_schema.dump(user, many=False), 200
 
 
-@user_bp.route("/referral", methods=["GET"])
+@user_bp.route("/referral/code", methods=["GET"])
 @jwt_required()
 def get_referral_code():
     current_user = get_jwt_identity()

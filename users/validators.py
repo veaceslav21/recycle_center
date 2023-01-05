@@ -14,6 +14,8 @@ class UserSchema(Schema):
     request_count = fields.Int(dump_only=True)
     is_staff = fields.Boolean()
     is_admin = fields.Boolean()
+    referrals = fields.List(fields.Nested("UserSchema", only=("username", "rating"), dump_only=True))
+    parent_referral = fields.Str()
 
 
 class PasswordResetSchema(Schema):

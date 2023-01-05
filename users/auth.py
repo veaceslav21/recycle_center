@@ -5,6 +5,7 @@ from .validators import UserSchema, PasswordResetSchema
 from flask_bcrypt import generate_password_hash
 from flask import jsonify
 from flask_jwt_extended import create_access_token
+from basehash import base36
 
 
 def _create_user(input_data):
@@ -19,11 +20,16 @@ def _create_user(input_data):
 
     check_username_exists = User.query.filter_by(username=input_data["username"]).first()
     if check_username_exists:
-        return {"message": "Unavailable username"}, 400
+        return jsonify({"message": "Unavailable username"}, 400)
 
     check_email_exists = User.query.filter_by(email=input_data["email"]).first()
     if check_email_exists:
-        return {"message": "Unavailable email"}, 400
+        return jsonify({"message": "Unavailable email"}), 400
+
+    if input_data.get("parent_referral", None):
+        unhash_fn = base36()
+        input_data["parent_referral"] = unhash_fn.unhash(input_data["parent_referral"])
+
 
     new_user = User(**input_data)
     new_user.hash_password()
@@ -31,8 +37,8 @@ def _create_user(input_data):
     db.session.commit()
     del input_data["password"]
 
-    return {"message": "You have registered successfully",
-            "new_user": validation_schema.dump(new_user)}, 201
+    return jsonify({"message": "You have registered successfully",
+            "new_user": validation_schema.dump(new_user)})
 
 
 def _login_user(data):
